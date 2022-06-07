@@ -103,9 +103,16 @@ class SolutionVisualizer:
         dict(bounds=['1970-01-01 12:30:00','1970-01-02 08:00:00']),
         dict(bounds=['1970-01-02 12:30:00','1970-01-03 08:00:00']),
         dict(bounds=['1970-01-03 12:30:00','1970-01-04 08:00:00']),
-        dict(bounds=['1970-01-04 12:30:00','1970-01-05 08:00:00']),
+        dict(bounds=['1970-01-04 12:30:00','1970-01-05 08:00:00'])
         ]
         )
+
+        fig.add_vline(x='1970-01-01 08:00:00', line_width=1, line_dash="solid", line_color="black")
+        fig.add_vline(x='1970-01-02 08:00:00', line_width=1, line_dash="solid", line_color="black")
+        fig.add_vline(x='1970-01-03 08:00:00', line_width=1, line_dash="solid", line_color="black")
+        fig.add_vline(x='1970-01-04 08:00:00', line_width=1, line_dash="solid", line_color="black")
+        fig.add_vline(x='1970-01-05 08:00:00', line_width=1, line_dash="solid", line_color="black")
+        fig.add_vline(x='1970-01-05 12:30:00', line_width=1, line_dash="solid", line_color="black")
 
         fig.update_layout(xaxis=dict(title='Timetable', tickformat='%H:%M:%S',))
         fig.show()
