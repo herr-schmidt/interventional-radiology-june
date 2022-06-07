@@ -3,15 +3,8 @@ import threading
 from tkinter import *
 from tkinter.ttk import *
 
-from click import command
 from data_maker import DataDescriptor, DataMaker, TruncatedNormalParameters
-import fast_complete_heuristic as fce
-import fast_complete_heuristic_variant as fcev
-import slow_complete_heuristic as sce
-import slow_complete_heuristic_variant as scev
-import LBBD_planner as lbbd
-import LBBD_planner_3_phase as lbbd3p
-import greedy_planner as greedy
+from planners import SinglePhaseStartingMinutePlanner
 
 from utils import SolutionVisualizer
 
@@ -127,23 +120,8 @@ class MiniGUI(object):
         dataContainer = dataMaker.create_data_container(dataDescriptor)
         dataDictionary = dataMaker.create_data_dictionary(dataContainer, dataDescriptor)
 
-
-        planner = None
-        if(self.selectedMethod.get() == "LBBD"):
-            planner = lbbd.Planner(timeLimit=self.timeLimit.value.get(), gap=self.gap.value.get()/100, solver=self.selectedSolver.get())
-        elif(self.selectedMethod.get() == "FCE"):
-            planner = fce.Planner(timeLimit=self.timeLimit.value.get(), gap=self.gap.value.get()/100, solver=self.selectedSolver.get())
-        elif(self.selectedMethod.get() == "SCE"):
-            planner = sce.Planner(timeLimit=self.timeLimit.value.get(), gap=self.gap.value.get()/100, solver=self.selectedSolver.get())
-        elif(self.selectedMethod.get() == "LBBD - 3 Phase Variant"):
-            planner = lbbd3p.Planner(timeLimit=self.timeLimit.value.get(), gap=self.gap.value.get()/100, solver=self.selectedSolver.get())
-        elif(self.selectedMethod.get() == "FCE - Variant"):
-            planner = fcev.Planner(timeLimit=self.timeLimit.value.get(), gap=self.gap.value.get()/100, solver=self.selectedSolver.get())
-        elif(self.selectedMethod.get() == "SCE - Variant"):
-            planner = scev.Planner(timeLimit=self.timeLimit.value.get(), gap=self.gap.value.get()/100, solver=self.selectedSolver.get())
-        else:
-            planner = greedy.Planner()
-
+        planner = SinglePhaseStartingMinutePlanner(timeLimit=self.timeLimit.value.get(), gap=self.gap.value.get()/100, solver=self.selectedSolver.get())
+        
         print("Patients to be operated:\n")
         dataMaker.print_data(dataDictionary)
         runInfo = planner.solve_model(dataDictionary)
@@ -212,7 +190,7 @@ class MiniGUI(object):
         # method selection combo
         self.selectedMethod = StringVar()
         self.selectedMethod.set("Select method")
-        self.methods = ["greedy", "FCE", "FCE - Variant", "SCE", "SCE - Variant", "LBBD", "LBBD - 3 Phase Variant"]
+        self.methods = ["Starting Minute"]
         self.methodsComboBox = Combobox(master=self.parametersFrame,
                                         textvariable=self.selectedMethod,
                                         values=self.methods,

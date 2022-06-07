@@ -2,6 +2,8 @@ import plotly.express as px
 import pandas as pd
 import datetime
 
+from pyparsing import PrecededBy
+
 class SolutionVisualizer:
 
     def __init__(self):
@@ -63,22 +65,37 @@ class SolutionVisualizer:
                     finish = start + datetime.timedelta(minutes=round(patient.operatingTime))
                     room = "S" + str(k)
                     covid = "Y" if patient.covid == 1 else "N"
+                    precedence = patient.precedence
+                    if(precedence == 1):
+                        precedence = "PO"
+                    elif(precedence == 2):
+                        precedence = "PR"
+                    elif(precedence == 3):
+                        precedence = "SO"
+                    elif(precedence == 4):
+                        precedence = "SR"
+                    elif(precedence == 5):
+                        precedence = "CO"
+                    elif(precedence == 6):
+                        precedence = "CR"
                     anesthesia = "Y" if patient.anesthesia == 1 else "N"
                     anesthetist = "A" + str(patient.anesthetist) if patient.anesthetist != 0 else ""
-                    dataFrameToAdd = pd.DataFrame([dict(Start=start, Finish=finish, Room=room, Covid=covid, Anesthesia=anesthesia, Anesthetist=anesthetist)])
+                    dataFrameToAdd = pd.DataFrame([dict(Start=start, Finish=finish, Room=room, Covid=covid, Precedence=precedence, Anesthesia=anesthesia, Anesthetist=anesthetist)])
                     df = pd.concat([df, dataFrameToAdd])
             dataFrames.append(df)
             dff = pd.concat([df, dff])
 
+        color_discrete_map = {'PO': '#4191fa', 'PR': '#57d2f7', 'SO': '#44db71', 'SR': '#e0e058', 'CO': '#f5844c', 'CR': '#f54c4c'}
         fig = px.timeline(dff,
                           x_start="Start",
                           x_end="Finish",
                           y="Room",
-                          color="Covid",
+                          color="Precedence",
                           text="Anesthetist",
                           labels={"Start": "Surgery start", "Finish": "Surgery end", "Room": "Operating room",
-                                  "Covid": "Covid patient", "Anesthesia": "Need for anesthesia", "Anesthetist": "Anesthetist"},
-                          hover_data=["Anesthesia", "Anesthetist"]
+                                  "Covid": "Covid patient", "Precedence": "Surgery Type and Delay", "Anesthesia": "Need for anesthesia", "Anesthetist": "Anesthetist"},
+                          hover_data=["Anesthesia", "Anesthetist", "Precedence", "Covid"],
+                          color_discrete_map=color_discrete_map,
                           )
 
         fig.update_layout(xaxis=dict(title='Timetable', tickformat='%H:%M:%S',))

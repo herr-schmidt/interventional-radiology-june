@@ -104,6 +104,7 @@ class Planner:
         self.model.u = pyo.Param(self.model.i, self.model.i)
         self.model.tau = pyo.Param(self.model.j, self.model.k, self.model.t)
         self.model.specialty = pyo.Param(self.model.i)
+        self.model.precedence = pyo.Param(self.model.i)
         self.model.bigM = pyo.Param(self.model.bigMRangeSet)
 
     def define_gamma_variables(self):
@@ -141,8 +142,9 @@ class Planner:
                         order = round(modelInstance.gamma[i].value)
                         specialty = modelInstance.specialty[i]
                         priority = modelInstance.r[i]
+                        precedence = modelInstance.precedence[i]
                         patients.append(
-                            Patient(i, priority, k, specialty, t, p, c, a, anesthetist, order))
+                            Patient(i, priority, k, specialty, t, p, c, precedence, a, anesthetist, order))
                 patients.sort(key=lambda x: x.order)
                 dict[(k, t)] = patients
         return dict

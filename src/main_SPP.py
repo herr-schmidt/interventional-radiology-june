@@ -7,9 +7,9 @@ from utils import SolutionVisualizer
 if __name__ == '__main__':
 
     solvers = ["cplex"]
-    size = [60]
-    covid = [0.5]
-    anesthesia = [0.5]
+    size = [120]
+    covid = [0.3]
+    anesthesia = [0.0]
     anesthetists = [1]
 
     logging.basicConfig(filename='times.log', encoding='utf-8', level=logging.INFO)
@@ -21,7 +21,7 @@ if __name__ == '__main__':
                 for a in anesthesia:
                     for at in anesthetists:
                         
-                        planner = SinglePhaseStartingMinutePlanner(timeLimit=300, gap = 0.005, solver=solver)
+                        planner = SinglePhaseStartingMinutePlanner(timeLimit=300, gap = 0.01, solver=solver)
 
                         dataDescriptor = DataDescriptor()
 
