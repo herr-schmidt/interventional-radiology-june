@@ -98,5 +98,14 @@ class SolutionVisualizer:
                           color_discrete_map=color_discrete_map,
                           )
 
+        fig.update_xaxes(
+        rangebreaks=[
+        dict(bounds=['1970-01-01 12:30:00','1970-01-02 08:00:00']),
+        dict(bounds=['1970-01-02 12:30:00','1970-01-03 08:00:00']),
+        dict(bounds=['1970-01-03 12:30:00','1970-01-04 08:00:00']),
+        dict(bounds=['1970-01-04 12:30:00','1970-01-05 08:00:00']),
+        ]
+        )
+
         fig.update_layout(xaxis=dict(title='Timetable', tickformat='%H:%M:%S',))
         fig.show()
