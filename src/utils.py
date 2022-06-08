@@ -78,9 +78,9 @@ class SolutionVisualizer:
                         precedence = "CO"
                     elif(precedence == 6):
                         precedence = "CR"
-                    anesthesia = "Y" if patient.anesthesia == 1 else "N"
-                    anesthetist = "A" + str(patient.anesthetist) if patient.anesthetist != 0 else ""
-                    dataFrameToAdd = pd.DataFrame([dict(Start=start, Finish=finish, Room=room, Covid=covid, Precedence=precedence, Anesthesia=anesthesia, Anesthetist=anesthetist)])
+                    # anesthesia = "Y" if patient.anesthesia == 1 else "N"
+                    # anesthetist = "A" + str(patient.anesthetist) if patient.anesthetist != 0 else ""
+                    dataFrameToAdd = pd.DataFrame([dict(Start=start, Finish=finish, Room=room, Covid=covid, Precedence=precedence)])
                     df = pd.concat([df, dataFrameToAdd])
             dataFrames.append(df)
             dff = pd.concat([df, dff])
@@ -91,10 +91,10 @@ class SolutionVisualizer:
                           x_end="Finish",
                           y="Room",
                           color="Precedence",
-                          text="Anesthetist",
+                          # text="Anesthetist",
                           labels={"Start": "Surgery start", "Finish": "Surgery end", "Room": "Operating room",
-                                  "Covid": "Covid patient", "Precedence": "Surgery Type and Delay", "Anesthesia": "Need for anesthesia", "Anesthetist": "Anesthetist"},
-                          hover_data=["Anesthesia", "Anesthetist", "Precedence", "Covid"],
+                                  "Covid": "Covid patient", "Precedence": "Surgery Type and Delay"},
+                          hover_data=["Precedence", "Covid"],
                           color_discrete_map=color_discrete_map,
                           )
 

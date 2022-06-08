@@ -161,11 +161,11 @@ Distributions for operating times and priorities are Truncated Normal Distributi
 class DataContainer:
     def __init__(self, operatingRoomTimes, anesthetistsTimes, operatingTimes, surgeriyIds, priorities, anesthesiaFlags, covidFlags, specialties):
         self.operatingRoomTimes = operatingRoomTimes
-        self.anesthetistsTimes = anesthetistsTimes
+        self.anesthetistsTimes = None
         self.operatingTimes = self.sample_list_to_dict(operatingTimes)
         self.surgeriyIds = self.sample_list_to_dict(surgeriyIds)
         self.priorities = self.sample_list_to_dict(priorities)
-        self.anesthesiaFlags = self.sample_list_to_dict(anesthesiaFlags)
+        self.anesthesiaFlags = None
         self.covidFlags = self.sample_list_to_dict(covidFlags)
         self.specialties = self.sample_list_to_dict(specialties)
         self.ids = self.sample_list_to_dict([i for i in range(1, len(operatingTimes) + 1)])
@@ -396,9 +396,9 @@ class DataMaker:
         operatingRoomTimes = self.create_room_timetable(dataDescriptor.operatingRooms,
                                                         dataDescriptor.days,
                                                         dataDescriptor.operatingDayDuration)
-        anesthetistsTimes = self.create_anestethists_timetable(dataDescriptor.anesthetists,
-                                                               dataDescriptor.days,
-                                                               dataDescriptor.anesthesiaTime)
+        # anesthetistsTimes = self.create_anestethists_timetable(dataDescriptor.anesthetists,
+        #                                                        dataDescriptor.days,
+        #                                                        dataDescriptor.anesthesiaTime)
         operatingTimesAndSurgeryIds = self.draw_operating_times_and_surgery_ids(dataDescriptor.patients)
         operatingTimes = operatingTimesAndSurgeryIds[0]
         surgeriyIds = operatingTimesAndSurgeryIds[1]
@@ -407,24 +407,24 @@ class DataMaker:
                                                     dataDescriptor.priorityDistribution.high,
                                                     dataDescriptor.priorityDistribution.mean,
                                                     dataDescriptor.priorityDistribution.stdDev)
-        anesthesiaFlags = self.generate_binomial_sample(dataDescriptor.patients,
-                                                        dataDescriptor.anesthesiaFrequence,
-                                                        isSpecialty=False)
+        # anesthesiaFlags = self.generate_binomial_sample(dataDescriptor.patients,
+        #                                                 dataDescriptor.anesthesiaFrequence,
+        #                                                 isSpecialty=False)
         covidFlags = self.generate_binomial_sample(dataDescriptor.patients,
                                                    dataDescriptor.covidFrequence,
                                                    isSpecialty=False)
         specialties = self.generate_binomial_sample(dataDescriptor.patients,
                                                     dataDescriptor.specialtyBalance,
                                                     isSpecialty=True)
-        return DataContainer(operatingRoomTimes, anesthetistsTimes, operatingTimes, surgeriyIds, priorities, anesthesiaFlags, covidFlags, specialties)
+        return DataContainer(operatingRoomTimes, None, operatingTimes, surgeriyIds, priorities, None, covidFlags, specialties)
 
     def create_data_dictionary(self, dataContainer: DataContainer, dataDescriptor: DataDescriptor):
         operatingRoomTimes = dataContainer.operatingRoomTimes
-        anesthetistsTimes = dataContainer.anesthetistsTimes
+        # anesthetistsTimes = dataContainer.anesthetistsTimes
         operatingTimes = dataContainer.asList(dataContainer.operatingTimes)
         surgeryIds = dataContainer.asList(dataContainer.surgeriyIds)
         priorities = dataContainer.asList(dataContainer.priorities)
-        anesthesiaFlags = dataContainer.asList(dataContainer.anesthesiaFlags)
+        # anesthesiaFlags = dataContainer.asList(dataContainer.anesthesiaFlags)
         covidFlags = dataContainer.asList(dataContainer.covidFlags)
         specialties = dataContainer.asList(dataContainer.specialties)
         ids = dataContainer.asList(dataContainer.ids)
@@ -439,14 +439,14 @@ class DataMaker:
                 'J': {None: dataDescriptor.specialties},
                 'K': {None: dataDescriptor.operatingRooms},
                 'T': {None: dataDescriptor.days},
-                'A': {None: dataDescriptor.anesthetists},
+                # 'A': {None: dataDescriptor.anesthetists},
                 'M': {None: 7},
                 's': operatingRoomTimes,
-                'An': anesthetistsTimes,
+                # 'An': anesthetistsTimes,
                 'tau': self.create_room_specialty_assignment(dataDescriptor.specialties, dataDescriptor.operatingRooms, dataDescriptor.days),
                 'p': self.create_dictionary_entry(operatingTimes, isTime=False),
                 'r': self.create_dictionary_entry(priorities, isTime=False),
-                'a': self.create_dictionary_entry(anesthesiaFlags, isTime=False),
+                # 'a': self.create_dictionary_entry(anesthesiaFlags, isTime=False),
                 'c': self.create_dictionary_entry(covidFlags, isTime=False),
                 'u': self.create_precedence(precedences),
                 'patientId': self.create_dictionary_entry(ids, isTime=False),
@@ -473,14 +473,14 @@ class DataMaker:
             operatingTime = data[None]['p'][(i + 1)]
             covid = data[None]['c'][(i + 1)]
             precedence = data[None]['precedence'][(i + 1)]
-            anesthesia = data[None]['a'][(i + 1)]
+            # anesthesia = data[None]['a'][(i + 1)]
             print(Patient(id=id,
                           priority=priority,
                           specialty=specialty,
                           operatingTime=operatingTime,
                           covid=covid,
                           precedence=precedence,
-                          anesthesia=anesthesia,
+                          anesthesia=None,
                           room="N/A",
                           day="N/A",
                           anesthetist="N/A",

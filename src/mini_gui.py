@@ -105,12 +105,9 @@ class MiniGUI(object):
 
         dataDescriptor.patients = self.patients.variable.get()
         dataDescriptor.days = 5
-        dataDescriptor.anesthetists = self.anesthetists.variable.get()
         dataDescriptor.covidFrequence = self.covid.variable.get()
-        dataDescriptor.anesthesiaFrequence = self.anesthesia.variable.get()
         dataDescriptor.specialtyBalance = 0.17
         dataDescriptor.operatingDayDuration = 270
-        dataDescriptor.anesthesiaTime = 270
 
         dataDescriptor.priorityDistribution = TruncatedNormalParameters(low=1,
                                                                         high=120,
@@ -149,24 +146,9 @@ class MiniGUI(object):
                                     value=0.2,
                                     orient="horizontal",
                                     labelText="Covid frequency")
-        self.anesthesia = ScaleWithEntry(master=self.parametersFrame,
-                                         type="double",
-                                         from_=0, to=1,
-                                         value=0.2,
-                                         orient="horizontal",
-                                         labelText="Anesthesia frequency")
-        self.anesthetists = ScaleWithEntry(master=self.parametersFrame,
-                                           type="int",
-                                           from_=0,
-                                           to=10,
-                                           value=1,
-                                           orient="horizontal",
-                                           labelText="Anesthetists")
 
         self.patients.pack()
         self.covid.pack()
-        self.anesthesia.pack()
-        self.anesthetists.pack()
 
         # solver selection combo
         self.selectedSolver = StringVar()
