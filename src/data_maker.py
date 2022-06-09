@@ -158,17 +158,20 @@ Distributions for operating times and priorities are Truncated Normal Distributi
 \t\tMean:{self.priorityDistribution.mean:19}\n\
 \t\tStandard deviation:{self.priorityDistribution.stdDev:5}'
 
+
 class DataContainer:
-    def __init__(self, operatingRoomTimes, anesthetistsTimes, operatingTimes, surgeriyIds, priorities, anesthesiaFlags, covidFlags, specialties):
+    def __init__(self, operatingRoomTimes, anesthetistsTimes, operatingTimes, surgeriyIds, UOIds, priorities, anesthesiaFlags, covidFlags, specialties):
         self.operatingRoomTimes = operatingRoomTimes
         self.anesthetistsTimes = None
         self.operatingTimes = self.sample_list_to_dict(operatingTimes)
         self.surgeriyIds = self.sample_list_to_dict(surgeriyIds)
+        self.UOIds = self.sample_list_to_dict(UOIds)
         self.priorities = self.sample_list_to_dict(priorities)
         self.anesthesiaFlags = None
         self.covidFlags = self.sample_list_to_dict(covidFlags)
         self.specialties = self.sample_list_to_dict(specialties)
-        self.ids = self.sample_list_to_dict([i for i in range(1, len(operatingTimes) + 1)])
+        self.ids = self.sample_list_to_dict(
+            [i for i in range(1, len(operatingTimes) + 1)])
 
     def asList(self, sampleDictionary):
         sampleAsList = []
@@ -184,10 +187,12 @@ class DataContainer:
             idx += 1
         return dict
 
+
 class SurgeryType(Enum):
     CLEAN = 1
     DIRTY = 2
     COVID = 3
+
 
 class DataMaker:
     def __init__(self, seed):
@@ -224,34 +229,65 @@ class DataMaker:
             "000000000000000000100": 0
         }
         self.surgeryFrequencyMapping = {
-            "000000100000000000000" : 0.2571428571,
-            "000100000000000000000" : 0.1047619048,
-            "000000000001110000000" : 0.07619047619,
-            "000000000000000100000" : 0.07619047619,
-            "100000000000000000000" : 0.06666666667,
-            "001000000000000000000" : 0.04761904762,
-            "100000100000000000000" : 0.0380952381,
-            "000000001000000000000" : 0.0380952381,
-            "010000000000000000000" : 0.02857142857,
-            "000000000000001000000" : 0.02857142857,
-            "000000000010000000000" : 0.02857142857,
-            "000001010000000000000" : 0.01904761905,
-            "000000100010000000000" : 0.01904761905,
-            "000100100000000000000" : 0.01904761905,
-            "100001100000000000000" : 0.01904761905,
-            "000001000000000100000" : 0.01904761905,
-            "000010000000000000000" : 0.009523809524,
-            "000001000100000000000" : 0.009523809524,
-            "000001100000000000000" : 0.009523809524,
-            "100001000000000001100" : 0.009523809524,
-            "000000101000000000000" : 0.009523809524,
-            "000000000000001000010" : 0.009523809524,
-            "000001100100000100000" : 0.009523809524,
-            "000000000001100000000" : 0.009523809524,
-            "000000010000000010000" : 0.009523809524,
-            "000000000000000000101" : 0.009523809524,
-            "100000101000000000000" : 0.009523809524,
-            "000000000000000000100" : 0.009523809524
+            "000000100000000000000": 0.2571428571,
+            "000100000000000000000": 0.1047619048,
+            "000000000001110000000": 0.07619047619,
+            "000000000000000100000": 0.07619047619,
+            "100000000000000000000": 0.06666666667,
+            "001000000000000000000": 0.04761904762,
+            "100000100000000000000": 0.0380952381,
+            "000000001000000000000": 0.0380952381,
+            "010000000000000000000": 0.02857142857,
+            "000000000000001000000": 0.02857142857,
+            "000000000010000000000": 0.02857142857,
+            "000001010000000000000": 0.01904761905,
+            "000000100010000000000": 0.01904761905,
+            "000100100000000000000": 0.01904761905,
+            "100001100000000000000": 0.01904761905,
+            "000001000000000100000": 0.01904761905,
+            "000010000000000000000": 0.009523809524,
+            "000001000100000000000": 0.009523809524,
+            "000001100000000000000": 0.009523809524,
+            "100001000000000001100": 0.009523809524,
+            "000000101000000000000": 0.009523809524,
+            "000000000000001000010": 0.009523809524,
+            "000001100100000100000": 0.009523809524,
+            "000000000001100000000": 0.009523809524,
+            "000000010000000010000": 0.009523809524,
+            "000000000000000000101": 0.009523809524,
+            "100000101000000000000": 0.009523809524,
+            "000000000000000000100": 0.009523809524
+        }
+        self.UOFrequencyMapping = {
+            "01Chirurgia Universitaria": 0.01923076923,
+            "01Medicina": 0.01923076923,
+            "0901 - Chirurgia Generale d'Urgenza e PS 3 - Degenza Ordinaria": 0.009615384615,
+            "0905 - Chirurgia Generale 1 U - Degenza Ordinaria ABEGG": 0.01923076923,
+            "0910 - Chirurgia Generale 2 U - Day Hospital": 0.03846153846,
+            "0910 - Chirurgia Generale 2 U - Degenza Ordinaria": 0.07692307692,
+            "0910Trapianti - Chirurgia Generale 2 U - Trapianti Fegato": 0.02884615385,
+            "0912 - Chirurgia Oncologica - Degenza Ordinaria": 0.009615384615,
+            "1902 - Dietetica e Nutrizione Clinica - Day Hospital": 0.009615384615,
+            "2609 - Medicina Interna 3 U - Degenza Ordinaria": 0.009615384615,
+            "2610 - Medicina Interna 2 U - Degenza Ordinaria": 0.02884615385,
+            "2639D - Day Hospital Unificato Medicine": 0.009615384615,
+            "2666 - Medicina Interna 4 U - Degenza Ordinaria": 0.009615384615,
+            "2901 - Nefrologia Dialisi e Trapianto U - Degenza Ordinaria": 0.02884615385,
+            "3207 - Neurologia 1 U - Degenza Ordinaria": 0.009615384615,
+            "3702 - Ginecologia e Ostetricia 4 S.Anna": 0.01923076923,
+            "3706 - Ginecologia e Ostetricia 1 U S.Anna": 0.009615384615,
+            "3707 - Servizio Unificato per I.V.G. S.Anna": 0.009615384615,
+            "3710 - Ginecologia e Ostetricia 2 U S.Anna": 0.009615384615,
+            "4303 - Urologia U - Degenza Ordinaria": 0.01923076923,
+            "4303B - Week Surgery Urologia U": 0.2211538462,
+            "4802 - Trapianto Renale - Degenza Ordinaria": 0.01923076923,
+            "4907D - Anest. e Rianim. 1U - PS - Degenza di Rianimazione": 0.009615384615,
+            "5801 - Gastroenterologia U - Degenza Ordinaria": 0.09615384615,
+            "5807 - Insufficienza Epatica e Trapianto Epatico - Degenza Ordinaria": 0.03846153846,
+            "6402 - Oncologia Medica 1 - Degenza Ordinaria": 0.03846153846,
+            "6421 - Oncologia Medica 2 - Degenza Ordinaria": 0.01923076923,
+            "6903-0202DH Radiodiagnostica 3": 0.009615384615,
+            "6904 - Radiologia 1 U": 0.1538461538
         }
         self.surgeryRoomOccupancyMapping = {
             "100000000000000000000": 50,
@@ -314,6 +350,137 @@ class DataMaker:
             "100000101000000000000": 0.5,
             "000000000000000000100": 0.5
         }
+        self.delayFrequencyByUO = {
+            "4303B - Week Surgery Urologia U": 0.5217391304,
+            "6904 - Radiologia 1 U": 0.5294117647,
+            "5801 - Gastroenterologia U - Degenza Ordinaria": 0.5,
+            "0910 - Chirurgia Generale 2 U - Degenza Ordinaria": 1,
+            "0910 - Chirurgia Generale 2 U - Day Hospital": 0.4,
+            "5807 - Insufficienza Epatica e Trapianto Epatico - Degenza Ordinaria": 1,
+            "6402 - Oncologia Medica 1 - Degenza Ordinaria": 0.75,
+            "0910Trapianti - Chirurgia Generale 2 U - Trapianti Fegato": 0.3333333333,
+            "2610 - Medicina Interna 2 U - Degenza Ordinaria": 1,
+            "2901 - Nefrologia Dialisi e Trapianto U - Degenza Ordinaria": 0.6666666667,
+            # from now on, statistic was too uncertain (< 3 patients per operation): flip a coin
+            "01Chirurgia Universitaria": 0.5,
+            "01Medicina": 0.5,
+            "0905 - Chirurgia Generale 1 U - Degenza Ordinaria ABEGG": 0.5,
+            "3702 - Ginecologia e Ostetricia 4 S.Anna": 0.5,
+            "4303 - Urologia U - Degenza Ordinaria": 0.5,
+            "4802 - Trapianto Renale - Degenza Ordinaria": 0.5,
+            "6421 - Oncologia Medica 2 - Degenza Ordinaria": 0.5,
+            "0901 - Chirurgia Generale d'Urgenza e PS 3 - Degenza Ordinaria": 0.5,
+            "0912 - Chirurgia Oncologica - Degenza Ordinaria": 0.5,
+            "1902 - Dietetica e Nutrizione Clinica - Day Hospital": 0.5,
+            "2609 - Medicina Interna 3 U - Degenza Ordinaria": 0.5,
+            "2639D - Day Hospital Unificato Medicine": 0.5,
+            "2666 - Medicina Interna 4 U - Degenza Ordinaria": 0.5,
+            "3207 - Neurologia 1 U - Degenza Ordinaria": 0.5,
+            "3706 - Ginecologia e Ostetricia 1 U S.Anna": 0.5,
+            "3707 - Servizio Unificato per I.V.G. S.Anna": 0.5,
+            "3710 - Ginecologia e Ostetricia 2 U S.Anna": 0.5,
+            "4907D - Anest. e Rianim. 1U - PS - Degenza di Rianimazione": 0.5,
+            "6903-0202DH Radiodiagnostica 3": 0.5,
+        }
+
+        self.operationGivenUO = {
+            "01Chirurgia Universitaria": {
+                "000000010000000010000": 0.5,
+                "000000100010000000000": 0.5,
+            },
+            "01Medicina": {"000000100000000000000": 1},
+            "0901 - Chirurgia Generale d'Urgenza e PS 3 - Degenza Ordinaria": {
+                "000000000000001000000": 1
+            },
+            "0905 - Chirurgia Generale 1 U - Degenza Ordinaria ABEGG": {
+                "000000100000000000000": 1
+            },
+            "0910 - Chirurgia Generale 2 U - Day Hospital": {
+                "000000000000000100000": 0.2,
+                "000000000001110000000": 0.6,
+                "000100000000000000000": 0.2,
+            },
+            "0910 - Chirurgia Generale 2 U - Degenza Ordinaria": {
+                "000000000000000000100": 0.125,
+                "000000000000001000010": 0.125,
+                "000000100000000000000": 0.125,
+                "000010000000000000000": 0.125,
+                "000100000000000000000": 0.375,
+                "000100100000000000000": 0.125,
+            },
+            "0910Trapianti - Chirurgia Generale 2 U - Trapianti Fegato": {
+                "000100000000000000000": 1
+            },
+            "0912 - Chirurgia Oncologica - Degenza Ordinaria": {"100000000000000000000": 1},
+            "1902 - Dietetica e Nutrizione Clinica - Day Hospital": {
+                "000000100000000000000": 1
+            },
+            "2609 - Medicina Interna 3 U - Degenza Ordinaria": {"000000100000000000000": 1},
+            "2610 - Medicina Interna 2 U - Degenza Ordinaria": {
+                "000000100000000000000": 0.6666666667,
+                "000001000000000100000": 0.3333333333,
+            },
+            "2639D - Day Hospital Unificato Medicine": {"000001000000000100000": 1},
+            "2666 - Medicina Interna 4 U - Degenza Ordinaria": {"000000100000000000000": 1},
+            "2901 - Nefrologia Dialisi e Trapianto U - Degenza Ordinaria": {
+                "000000001000000000000": 0.3333333333,
+                "000000100000000000000": 0.3333333333,
+                "000001100000000000000": 0.3333333333,
+            },
+            "3207 - Neurologia 1 U - Degenza Ordinaria": {"000000100010000000000": 1},
+            "3702 - Ginecologia e Ostetricia 4 S.Anna": {
+                "000000001000000000000": 0.5,
+                "100001100000000000000": 0.5,
+            },
+            "3706 - Ginecologia e Ostetricia 1 U S.Anna": {"000000001000000000000": 1},
+            "3707 - Servizio Unificato per I.V.G. S.Anna": {"000000100000000000000": 1},
+            "3710 - Ginecologia e Ostetricia 2 U S.Anna": {"000000100000000000000": 1},
+            "4303 - Urologia U - Degenza Ordinaria": {
+                "000001000100000000000": 0.5,
+                "100000101000000000000": 0.5,
+            },
+            "4303B - Week Surgery Urologia U": {
+                "000000001000000000000": 0.04347826087,
+                "000000100000000000000": 0.4782608696,
+                "000000101000000000000": 0.04347826087,
+                "100000000000000000000": 0.2608695652,
+                "100000100000000000000": 0.1304347826,
+                "100001100000000000000": 0.04347826087,
+            },
+            "4802 - Trapianto Renale - Degenza Ordinaria": {
+                "000000100000000000000": 0.5,
+                "100001000000000001100": 0.5,
+            },
+            "4907D - Anest. e Rianim. 1U - PS - Degenza di Rianimazione": {
+                "000000000010000000000": 1
+            },
+            "5801 - Gastroenterologia U - Degenza Ordinaria": {
+                "000000000000000100000": 0.3,
+                "000000000001100000000": 0.1,
+                "000000000001110000000": 0.5,
+                "001000000000000000000": 0.1,
+            },
+            "5807 - Insufficienza Epatica e Trapianto Epatico - Degenza Ordinaria": {
+                "001000000000000000000": 1
+            },
+            "6402 - Oncologia Medica 1 - Degenza Ordinaria": {
+                "000000000000000100000": 0.25,
+                "000000000000001000000": 0.25,
+                "000001100100000100000": 0.25,
+                "000100100000000000000": 0.25,
+            },
+            "6421 - Oncologia Medica 2 - Degenza Ordinaria": {"000000000010000000000": 1},
+            "6903-0202DH Radiodiagnostica 3": {"000000000000000000101": 1},
+            "6904 - Radiologia 1 U": {
+                "000000000000000100000": 0.1875,
+                "000000000000001000000": 0.0625,
+                "000000100000000000000": 0.125,
+                "000001010000000000000": 0.125,
+                "000100000000000000000": 0.25,
+                "010000000000000000000": 0.1875,
+                "100000100000000000000": 0.0625,
+            },
+        }
 
     def generate_truncnorm_sample(self, patients, lower, upper, mean, stdDev):
         a = (lower - mean) / stdDev
@@ -328,13 +495,13 @@ class DataMaker:
             sample = sample + 1
         return sample
 
-    def create_dictionary_entry(self, sample, isTime):
+    def create_dictionary_entry(self, sample, toRound):
         dict = {}
         for i in range(0, len(sample)):
-            if(isTime):
-                dict[(i + 1)] = int(sample[i])
+            if(toRound):
+                dict[(i + 1)] = round(sample[i])
             else:
-                dict[(i + 1)] = int(sample[i])
+                dict[(i + 1)] = sample[i]
         return dict
 
     def create_room_timetable(self, K, T, operatingDayDuration):
@@ -391,47 +558,45 @@ class DataMaker:
     def generate_data(self, dataDescriptor: DataDescriptor):
         dataContainer = self.create_data_container(dataDescriptor)
         return self.create_data_dictionary(dataContainer, dataDescriptor)
-        
+
     def create_data_container(self, dataDescriptor: DataDescriptor) -> DataContainer:
         operatingRoomTimes = self.create_room_timetable(dataDescriptor.operatingRooms,
                                                         dataDescriptor.days,
                                                         dataDescriptor.operatingDayDuration)
-        # anesthetistsTimes = self.create_anestethists_timetable(dataDescriptor.anesthetists,
-        #                                                        dataDescriptor.days,
-        #                                                        dataDescriptor.anesthesiaTime)
-        operatingTimesAndSurgeryIds = self.draw_operating_times_and_surgery_ids(dataDescriptor.patients)
-        operatingTimes = operatingTimesAndSurgeryIds[0]
-        surgeriyIds = operatingTimesAndSurgeryIds[1]
+        UOs = self.draw_UO(dataDescriptor.patients)
+        operations = self.draw_operations_given_UO(UOs)
+        operatingTimes = self.compute_operating_times(operations)
+
+
+
         priorities = self.generate_truncnorm_sample(dataDescriptor.patients,
                                                     dataDescriptor.priorityDistribution.low,
                                                     dataDescriptor.priorityDistribution.high,
                                                     dataDescriptor.priorityDistribution.mean,
                                                     dataDescriptor.priorityDistribution.stdDev)
-        # anesthesiaFlags = self.generate_binomial_sample(dataDescriptor.patients,
-        #                                                 dataDescriptor.anesthesiaFrequence,
-        #                                                 isSpecialty=False)
         covidFlags = self.generate_binomial_sample(dataDescriptor.patients,
                                                    dataDescriptor.covidFrequence,
                                                    isSpecialty=False)
         specialties = self.generate_binomial_sample(dataDescriptor.patients,
                                                     dataDescriptor.specialtyBalance,
                                                     isSpecialty=True)
-        return DataContainer(operatingRoomTimes, None, operatingTimes, surgeriyIds, priorities, None, covidFlags, specialties)
+        return DataContainer(operatingRoomTimes, None, operatingTimes, operations, UOs, priorities, None, covidFlags, specialties)
 
     def create_data_dictionary(self, dataContainer: DataContainer, dataDescriptor: DataDescriptor):
         operatingRoomTimes = dataContainer.operatingRoomTimes
-        # anesthetistsTimes = dataContainer.anesthetistsTimes
         operatingTimes = dataContainer.asList(dataContainer.operatingTimes)
         surgeryIds = dataContainer.asList(dataContainer.surgeriyIds)
+        UOIds = dataContainer.asList(dataContainer.UOIds)
         priorities = dataContainer.asList(dataContainer.priorities)
-        # anesthesiaFlags = dataContainer.asList(dataContainer.anesthesiaFlags)
         covidFlags = dataContainer.asList(dataContainer.covidFlags)
         specialties = dataContainer.asList(dataContainer.specialties)
         ids = dataContainer.asList(dataContainer.ids)
         maxOperatingRoomTime = 270
 
         surgeryTypes = self.compute_surgery_types(surgeryIds, covidFlags)
-        delayFlags = self.draw_delay_flags(surgeryIds)
+        delayFlags = self.draw_delay_flags_by_UO(UOIds)
+        # delayFlags = self.draw_delay_flags_by_operation(surgeryIds)
+        delayWeights = self.compute_delay_weights(delayFlags)
         precedences = self.compute_precedences(surgeryTypes, delayFlags)
         return {
             None: {
@@ -439,20 +604,18 @@ class DataMaker:
                 'J': {None: dataDescriptor.specialties},
                 'K': {None: dataDescriptor.operatingRooms},
                 'T': {None: dataDescriptor.days},
-                # 'A': {None: dataDescriptor.anesthetists},
                 'M': {None: 7},
                 's': operatingRoomTimes,
-                # 'An': anesthetistsTimes,
                 'tau': self.create_room_specialty_assignment(dataDescriptor.specialties, dataDescriptor.operatingRooms, dataDescriptor.days),
-                'p': self.create_dictionary_entry(operatingTimes, isTime=False),
-                'r': self.create_dictionary_entry(priorities, isTime=False),
-                # 'a': self.create_dictionary_entry(anesthesiaFlags, isTime=False),
-                'c': self.create_dictionary_entry(covidFlags, isTime=False),
+                'p': self.create_dictionary_entry(operatingTimes, toRound=False),
+                'r': self.create_dictionary_entry(priorities, toRound=True),
+                'd': self.create_dictionary_entry(delayWeights, toRound=False),
+                'c': self.create_dictionary_entry(covidFlags, toRound=False),
                 'u': self.create_precedence(precedences),
-                'patientId': self.create_dictionary_entry(ids, isTime=False),
-                'specialty': self.create_dictionary_entry(specialties, isTime=False),
-                'rho': self.create_patient_specialty_table(dataDescriptor.patients, dataDescriptor.specialties, self.create_dictionary_entry(specialties, isTime=False)),
-                'precedence': self.create_dictionary_entry(precedences, isTime=False),
+                'patientId': self.create_dictionary_entry(ids, toRound=False),
+                'specialty': self.create_dictionary_entry(specialties, toRound=False),
+                'rho': self.create_patient_specialty_table(dataDescriptor.patients, dataDescriptor.specialties, self.create_dictionary_entry(specialties, toRound=False)),
+                'precedence': self.create_dictionary_entry(precedences, toRound=False),
                 'bigM': {
                     1: math.floor(maxOperatingRoomTime/min(operatingTimes)),
                     2: maxOperatingRoomTime,
@@ -462,7 +625,7 @@ class DataMaker:
                     6: dataDescriptor.patients
                 }
             }
-        }   
+        }
 
     def print_data(self, data):
         patientNumber = data[None]['I'][None]
@@ -488,25 +651,57 @@ class DataMaker:
                           ))
         print("\n")
 
-    def draw_operating_times_and_surgery_ids(self, n):
-        surgeryIds = list(self.surgeryFrequencyMapping.keys())
-        surgeryIdsFrequencies = list(self.surgeryFrequencyMapping.values())
-        cumulativeSum = np.cumsum(surgeryIdsFrequencies)
+    def draw_UO(self, n):
+        UOIds = list(self.UOFrequencyMapping.keys())
+        UOIdsFrequencies = list(self.UOFrequencyMapping.values())
+        cumulativeSum = np.cumsum(UOIdsFrequencies)
         draws = uniform.rvs(size=n)
-        times = np.zeros(n) - 1
-        surgeries = []
+        UOs = [""] * n
         for i in range(0, len(draws)):
             for j in range(0, len(cumulativeSum)):
                 if(draws[i] <= cumulativeSum[j]):
+                    UOs[i] = UOIds[j]
+                    break
+            if(UOs[i] == ""):
+                UOs[i] = UOIds[-1]
+        return UOs
+
+    def draw_operations_given_UO(self, UOs):
+        n = len(UOs)
+        draws = uniform.rvs(size=n)
+        operations = []
+        for i in range(0, n):
+            surgeryIds = list(self.operationGivenUO[UOs[i]].keys())
+            surgeryIdsFrequencies = list(self.operationGivenUO[UOs[i]].values())
+            cumulativeSum = np.cumsum(surgeryIdsFrequencies)
+            times = np.zeros(n) - 1
+            for j in range(0, len(cumulativeSum)):
+                if(draws[i] <= cumulativeSum[j]):
                     times[i] = self.surgeryRoomOccupancyMapping[surgeryIds[j]]
-                    surgeries.append(surgeryIds[j])
+                    operations.append(surgeryIds[j])
                     break
             if(times[i] == -1):
                 times[i] = self.surgeryRoomOccupancyMapping[surgeryIds[-1]]
-                surgeries.append(surgeryIds[-1])
-        return (times, surgeries)
+                operations.append(surgeryIds[-1])
+        return operations
 
-    def draw_delay_flags(self, patientSurgeryIds):
+    def draw_delay_flags_by_UO(self, UOs):
+        draws = uniform.rvs(size=len(UOs))
+        delayFlags = []
+        for i in range(0, len(draws)):
+            if(draws[i] <= self.delayFrequencyByUO[UOs[i]]):
+                delayFlags.append(1)
+            else:
+                delayFlags.append(0)
+        return delayFlags
+
+    def compute_operating_times(self, operations):
+        times = []
+        for operation in operations:
+            times.append(self.surgeryRoomOccupancyMapping[operation])
+        return times
+
+    def draw_delay_flags_by_operation(self, patientSurgeryIds):
         draws = uniform.rvs(size=len(patientSurgeryIds))
         delayFlags = []
         for i in range(0, len(draws)):
@@ -544,3 +739,12 @@ class DataMaker:
             if(surgeryTypes[i] == SurgeryType.COVID and delayFlags[i] == 1):
                 precedences.append(6)
         return precedences
+
+    def compute_delay_weights(self, delayFlags):
+        delayWeights = []
+        for df in delayFlags:
+            if(df == 1):
+                delayWeights.append(0.75)
+            else:
+                delayWeights.append(1.0)
+        return delayWeights

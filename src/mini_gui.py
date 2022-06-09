@@ -127,6 +127,7 @@ class MiniGUI(object):
         sv = SolutionVisualizer()
         sv.print_solution(solution)
         print("Objective function value: " + str(sv.compute_solution_value(solution)))
+        sv.print_patients_by_precedence(solution)
         sv.plot_graph(solution)
 
     def initializeUI(self):

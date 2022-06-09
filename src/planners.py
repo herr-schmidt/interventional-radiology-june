@@ -40,7 +40,8 @@ class Planner:
 
     @staticmethod
     def objective_function(model):
-        return sum(model.r[i] * model.x[i, k, t] for i in model.i for k in model.k for t in model.t)
+        # N = 1/(1 + sum(model.d[i] for i in model.i))
+        return sum(model.r[i] * model.x[i, k, t] for i in model.i for k in model.k for t in model.t) # + N * sum(model.d[i] * model.x[i, k, t] for i in model.i for k in model.k for t in model.t)
 
     # one surgery per patient, at most
     @staticmethod
@@ -98,6 +99,7 @@ class Planner:
         # self.model.l = pyo.Param(self.model.i)
         # self.model.L = pyo.Param(self.model.i)
         self.model.r = pyo.Param(self.model.i)
+        self.model.d = pyo.Param(self.model.i)
         self.model.s = pyo.Param(self.model.k, self.model.t)
         # self.model.a = pyo.Param(self.model.i)
         self.model.c = pyo.Param(self.model.i)
