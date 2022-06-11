@@ -95,25 +95,25 @@ class SolutionVisualizer:
                     covid = "Y" if patient.covid == 1 else "N"
                     precedence = patient.precedence
                     if(precedence == 1):
-                        precedence = "PO"
+                        precedence = "Clean procedure, on schedule"
                     elif(precedence == 2):
-                        precedence = "PR"
+                        precedence = "Clean procedure, delay expected"
                     elif(precedence == 3):
-                        precedence = "SO"
+                        precedence = "Dirty procedure, on schedule"
                     elif(precedence == 4):
-                        precedence = "SR"
+                        precedence = "Dirty procedure, delay expected"
                     elif(precedence == 5):
-                        precedence = "CO"
+                        precedence = "Covid-19 patient, on schedule"
                     elif(precedence == 6):
-                        precedence = "CR"
-                    # anesthesia = "Y" if patient.anesthesia == 1 else "N"
-                    # anesthetist = "A" + str(patient.anesthetist) if patient.anesthetist != 0 else ""
+                        precedence = "Covid-19 patient, delay expected"
                     dataFrameToAdd = pd.DataFrame([dict(Start=start, Finish=finish, Room=room, Covid=covid, Precedence=precedence)])
                     df = pd.concat([df, dataFrameToAdd])
             dataFrames.append(df)
             dff = pd.concat([df, dff])
 
-        color_discrete_map = {'PO': '#4191fa', 'PR': '#57d2f7', 'SO': '#44db71', 'SR': '#e0e058', 'CO': '#f5844c', 'CR': '#f54c4c'}
+        color_discrete_map = {'Clean procedure, on schedule': '#38A6A5', 'Clean procedure, delay expected': '#0F8554',
+                                'Dirty procedure, on schedule': '#73AF48', 'Dirty procedure, delay expected': '#EDAD08',
+                                'Covid-19 patient, on schedule': '#E17C05', 'Covid-19 patient, delay expected': '#CC503E'}
         fig = px.timeline(dff,
                           x_start="Start",
                           x_end="Finish",
@@ -124,6 +124,7 @@ class SolutionVisualizer:
                                   "Covid": "Covid patient", "Precedence": "Surgery Type and Delay"},
                           hover_data=["Precedence", "Covid"],
                           color_discrete_map=color_discrete_map,
+                          
                           )
 
         fig.update_xaxes(
@@ -143,4 +144,5 @@ class SolutionVisualizer:
         fig.add_vline(x='1970-01-05 12:30:00', line_width=1, line_dash="solid", line_color="black")
 
         fig.update_layout(xaxis=dict(title='Timetable', tickformat='%H:%M:%S',))
+        fig.update_yaxes(categoryorder='category descending')
         fig.show()
