@@ -33,6 +33,7 @@ class DataDescriptor:
         self._anesthesiaTime = None
         self._operatingTimeDistribution = None
         self._priorityDistribution = None
+        self._delayWeight = None
 
     @property
     def patients(self):
@@ -134,7 +135,16 @@ class DataDescriptor:
     def priorityDistribution(self, value):
         self._priorityDistribution = value
 
-    def initialize(self, patients, days, anesthetists, covidFrequence, anesthesiaFrequence, specialtyBalance, operatingTimeDistribution, priorityDistribution):
+    @property
+    def delayWeight(self):
+        """Get delay weight."""
+        return self._delayWeight
+
+    @delayWeight.setter
+    def delayWeight(self, value):
+        self._delayWeight = value
+
+    def initialize(self, patients, days, anesthetists, covidFrequence, anesthesiaFrequence, specialtyBalance, operatingTimeDistribution, priorityDistribution, delayWeight):
         self.patients = patients
         self.days = days
         self.anesthetists = anesthetists
@@ -143,6 +153,7 @@ class DataDescriptor:
         self.specialtyBalance = specialtyBalance
         self.operatingTimeDistribution = operatingTimeDistribution
         self.priorityDistribution = priorityDistribution
+        self.delayWeight = delayWeight
 
     def __str__(self):
         return f'Patients:{self.patients:17}\nDays:{self.days:21}\nAnesthetists:{self.anesthetists:13}\nCovid frequence:{self.covidFrequence:10}\nAnesthesia frequence:{self.anesthesiaFrequence:5}\nSpecialty balance:{self.specialtyBalance:8}\n\
@@ -582,7 +593,7 @@ class DataMaker:
                                                     isSpecialty=True)
         return DataContainer(operatingRoomTimes, None, operatingTimes, operations, UOs, priorities, None, covidFlags, specialties)
 
-    def create_data_dictionary(self, dataContainer: DataContainer, dataDescriptor: DataDescriptor):
+    def create_data_dictionary(self, dataContainer: DataContainer, dataDescriptor: DataDescriptor, delayEstimate):
         operatingRoomTimes = dataContainer.operatingRoomTimes
         operatingTimes = dataContainer.asList(dataContainer.operatingTimes)
         surgeryIds = dataContainer.asList(dataContainer.surgeriyIds)
@@ -592,11 +603,15 @@ class DataMaker:
         specialties = dataContainer.asList(dataContainer.specialties)
         ids = dataContainer.asList(dataContainer.ids)
         maxOperatingRoomTime = 270
+        delayWeight = dataDescriptor.delayWeight
 
         surgeryTypes = self.compute_surgery_types(surgeryIds, covidFlags)
-        # delayFlags = self.draw_delay_flags_by_UO(UOIds)
-        delayFlags = self.draw_delay_flags_by_operation(surgeryIds)
-        delayWeights = self.compute_delay_weights(delayFlags)
+        delayFlags = None
+        if(delayEstimate == "UO"):
+            delayFlags = self.draw_delay_flags_by_UO(UOIds)
+        if(delayEstimate == "procedure"):
+            delayFlags = self.draw_delay_flags_by_operation(surgeryIds)
+        delayWeights = self.compute_delay_weights(delayFlags, delayWeight)
         precedences = self.compute_precedences(surgeryTypes, delayFlags)
         return {
             None: {
@@ -765,11 +780,11 @@ class DataMaker:
                 precedences.append(6)
         return precedences
 
-    def compute_delay_weights(self, delayFlags):
+    def compute_delay_weights(self, delayFlags, delayWeight):
         delayWeights = []
         for df in delayFlags:
             if(df == 1):
-                delayWeights.append(0.75)
+                delayWeights.append(delayWeight)
             else:
                 delayWeights.append(1.0)
         return delayWeights

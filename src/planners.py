@@ -113,7 +113,7 @@ class Planner:
 
     def define_objective(self):
         self.model.objective = pyo.Objective(
-            rule=self.objective_function,
+            rule=self.objective_function_d_i,
             sense=pyo.maximize)
 
     def create_model_instance(self, data):
@@ -264,9 +264,8 @@ class SinglePhaseStartingMinutePlanner(StartingMinutePlanner):
         modelBuildingTime = self.create_model_instance(data)
         self.fix_y_variables(self.modelInstance)
         print("Solving model instance...")
-        t = time.time()
         self.model.results = self.solver.solve(self.modelInstance, tee=True)
-        solvingTime = (time.time() - t)
+        solvingTime = self.solver._last_solve_time
         print("\nModel instance solved.")
         print(self.model.results)
 
