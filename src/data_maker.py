@@ -594,8 +594,8 @@ class DataMaker:
         maxOperatingRoomTime = 270
 
         surgeryTypes = self.compute_surgery_types(surgeryIds, covidFlags)
-        delayFlags = self.draw_delay_flags_by_UO(UOIds)
-        # delayFlags = self.draw_delay_flags_by_operation(surgeryIds)
+        # delayFlags = self.draw_delay_flags_by_UO(UOIds)
+        delayFlags = self.draw_delay_flags_by_operation(surgeryIds)
         delayWeights = self.compute_delay_weights(delayFlags)
         precedences = self.compute_precedences(surgeryTypes, delayFlags)
         return {
@@ -643,13 +643,38 @@ class DataMaker:
                           operatingTime=operatingTime,
                           covid=covid,
                           precedence=precedence,
-                          anesthesia=None,
+                          anesthesia="N/A",
                           room="N/A",
                           day="N/A",
                           anesthetist="N/A",
                           order="N/A"
                           ))
         print("\n")
+
+    def data_as_string(self, data):
+        result = ""
+        patientNumber = data[None]['I'][None]
+        for i in range(0, patientNumber):
+            id = i + 1
+            priority = data[None]['r'][(i + 1)]
+            specialty = data[None]['specialty'][(i + 1)]
+            operatingTime = data[None]['p'][(i + 1)]
+            covid = data[None]['c'][(i + 1)]
+            precedence = data[None]['precedence'][(i + 1)]
+            # anesthesia = data[None]['a'][(i + 1)]
+            result = result + str(Patient(id=id,
+                          priority=priority,
+                          specialty=specialty,
+                          operatingTime=operatingTime,
+                          covid=covid,
+                          precedence=precedence,
+                          anesthesia="N/A",
+                          room="N/A",
+                          day="N/A",
+                          anesthetist="N/A",
+                          order="N/A"
+                          )) + "\n"
+        return result
 
     def draw_UO(self, n):
         UOIds = list(self.UOFrequencyMapping.keys())

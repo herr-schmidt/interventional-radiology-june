@@ -1,8 +1,7 @@
 from __future__ import division
-import logging
 import time
 import pyomo.environ as pyo
-import plotly.express as px
+from pyomo.opt import SolverStatus, TerminationCondition
 
 from model import Patient
 
@@ -13,14 +12,10 @@ class Planner:
         self.model = pyo.AbstractModel()
         self.modelInstance = None
         self.solver = pyo.SolverFactory(solver)
-        self.MPModel = pyo.AbstractModel()
-        self.MPInstance = None
-        self.SPModel = pyo.AbstractModel()
-        self.SPInstance = None
-        self.solver = pyo.SolverFactory(solver)
         if(solver == "cplex"):
             self.solver.options['timelimit'] = timeLimit
-            self.solver.options['mipgap'] = gap
+            if(gap is not None):
+                self.solver.options['mipgap'] = gap
             self.solver.options['emphasis'] = "mip 2"
             self.solver.options['mip'] = "strategy probe 3"
             self.solver.options['mip'] = "cuts all 2"
@@ -39,9 +34,13 @@ class Planner:
             # self.solver.options['printingOptions'] = "normal"
 
     @staticmethod
+    def objective_function_d_i(model):
+        return sum(model.r[i] * model.d[i] * model.x[i, k, t] for i in model.i for k in model.k for t in model.t)
+
+    @staticmethod
     def objective_function(model):
-        # N = 1/(1 + sum(model.d[i] for i in model.i))
-        return sum(model.r[i] * model.x[i, k, t] for i in model.i for k in model.k for t in model.t) # + N * sum(model.d[i] * model.x[i, k, t] for i in model.i for k in model.k for t in model.t)
+        return sum(model.r[i] * model.x[i, k, t] for i in model.i for k in model.k for t in model.t)
+
 
     # one surgery per patient, at most
     @staticmethod
@@ -122,9 +121,7 @@ class Planner:
         t = time.time()
         self.modelInstance = self.model.create_instance(data)
         elapsed = (time.time() - t)
-        print("Model instance created in " + str(round(elapsed, 2)) + "s")
-        logging.basicConfig(filename='times.log', encoding='utf-8', level=logging.INFO)
-        logging.info("Model instance created in " + str(round(elapsed, 2)) + "s")
+        return elapsed
 
     def common_extract_solution(self, modelInstance):
         dict = {}
@@ -264,12 +261,30 @@ class SinglePhaseStartingMinutePlanner(StartingMinutePlanner):
         self.define_exclusive_precedence_constraint()
 
     def solve_model(self, data):
-        self.create_model_instance(data)
+        modelBuildingTime = self.create_model_instance(data)
         self.fix_y_variables(self.modelInstance)
         print("Solving model instance...")
+        t = time.time()
         self.model.results = self.solver.solve(self.modelInstance, tee=True)
+        solvingTime = (time.time() - t)
         print("\nModel instance solved.")
         print(self.model.results)
+
+        statusOk = self.model.results and self.model.results.solver.status == SolverStatus.ok
+        timeLimitHit = self.model.results.solver.termination_condition in [TerminationCondition.maxTimeLimit]
+        gap = 0
+        if(not (self.solver._gap is None and self.solver._best_bound is None)):
+            gap = round(self.solver._gap / self.solver._best_bound * 100, 2)
+        runInfo = {
+                    "Model_building_time": modelBuildingTime,
+                    "Solving_time": solvingTime,
+                    "Status_OK": statusOk,
+                    "Objective_Function_Value": pyo.value(self.modelInstance.objective),
+                    "Time_Limit_Hit": timeLimitHit,
+                    "Gap": gap
+                    }
+        
+        return runInfo
 
     def extract_solution(self):
         return super().common_extract_solution(self.modelInstance)

@@ -50,6 +50,36 @@ class SolutionVisualizer:
                         CR += 1
         print("PO: " + str(PO) + "\n" + "PR " + str(PR) + "\n" + "SO: " + str(SO) + "\n" + "SR: " + str(SR) + "\n" + "CO: " + str(CO) + "\n" + "CR: " + str(CR) + "\n")
 
+    def compute_solution_partitioning_by_precedence(self, solution):
+        KT = max(solution.keys())
+        K = KT[0]
+        T = KT[1]
+
+        PO = 0
+        PR = 0
+        SO = 0
+        SR = 0
+        CO = 0
+        CR = 0
+        for t in range(1, T + 1):
+            for k in range(1, K + 1):
+                for patient in solution[(k, t)]:
+                    if(patient.precedence == 1):
+                        PO += 1
+                    elif(patient.precedence == 2):
+                        PR += 1
+                    elif(patient.precedence == 3):
+                        SO += 1
+                    elif(patient.precedence == 4):
+                        SR += 1
+                    elif(patient.precedence == 5):
+                        CO += 1
+                    elif(patient.precedence == 6):
+                        CR += 1
+
+        return [PO, PR, SO, SR, CO, CR]
+
+
     def print_solution(self, solution):
         if(solution is None):
             print("No solution was found!")
@@ -72,6 +102,34 @@ class SolutionVisualizer:
                     operatedPatients += 1
                 print("\n")
         print("Total number of operated patients: " + str(operatedPatients))
+
+    def solution_as_string(self, solution):
+        KT = max(solution.keys())
+        K = KT[0]
+        T = KT[1]
+
+        result = "Operated patients, for each day and for each room:\n"
+        for t in range(1, T + 1):
+            for k in range(1, K + 1):
+                result += "Day: " + str(t) + "; Operating Room: S" + str(k) + "\n"
+                if(len(solution[(k, t)]) == 0):
+                    result += "---" + "\n"
+                for patient in solution[(k, t)]:
+                    result += str(patient) + "\n"
+                result += "\n"
+        return result
+
+    def count_operated_patients(self, solution):
+        KT = max(solution.keys())
+        K = KT[0]
+        T = KT[1]
+
+        operatedPatients = 0
+        for t in range(1, T + 1):
+            for k in range(1, K + 1):
+                operatedPatients += len(solution[(k, t)])
+        return operatedPatients
+
 
     def plot_graph(self, solution):
         if(solution is None):
