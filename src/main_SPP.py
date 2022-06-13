@@ -19,20 +19,20 @@ if __name__ == '__main__':
     runDataLogger.addHandler(runDataFileHandler)
     runDataLogger.info("Test_id\tSolver\tPatients\tCovid_frequency\tModel_building_time\tSolving_time\tOverall_time\tStatus_OK\tObjective_Function_Value\tTime_Limit_Hit\tGap\tSelected_patients\tSelected_patients_partitioning_by_precedence\tDelay_estimation\tDelay_weight")
 
-    id = 1
     for solver in solvers:
         for de in delayEstimate:
+            id = 1
             for dw in delayWeights:
                 for s in size:
                     for c in covid:
                         solutionLogger = logging.Logger("solutionLogger")
                         solutionLogger.setLevel(logging.INFO)
-                        solutionFileHandler = logging.FileHandler("T_" + str(de) + "_di_" + str(dw) + "_" + str(id) + ".log")
+                        solutionFileHandler = logging.FileHandler("T_" + str(de) + "_di_"+ str(dw) + "_" + str(id) + ".log")
                         solutionFileHandler.setLevel(logging.INFO)
                         solutionLogger.addHandler(solutionFileHandler)
 
 
-                        planner = SinglePhaseStartingMinutePlanner(timeLimit=300, gap = None, solver=solver)
+                        planner = SinglePhaseStartingMinutePlanner(timeLimit=300, gap = 0.005, solver=solver)
 
                         dataDescriptor = DataDescriptor()
 
@@ -66,12 +66,12 @@ if __name__ == '__main__':
                         solution = planner.extract_solution()
                         sv = SolutionVisualizer()
                         # sv.print_solution(solution)
-                        # sv.plot_graph(solution)
+                        sv.plot_graph(solution)
 
                         solutionLogger.info("\n" + sv.solution_as_string(solution))
 
 
-                        runDataLogger.info("T_" + str(de) + "di_" + str(dw) + "_" + str(id) + "\t"
+                        runDataLogger.info("T_" + str(de) + "_di_" + str(dw) + "_" + str(id) + "\t"
                                         + solver + "\t"
                                         + str(s) + "\t"
                                         + str(c) + "\t"
@@ -79,7 +79,7 @@ if __name__ == '__main__':
                                         + str(runInfo["Solving_time"]) + "\t"
                                         + str(round(elapsed, 2)) + "\t"
                                         + str(runInfo["Status_OK"]) + "\t"
-                                        + str(runInfo["Objective_Function_Value"]) + "\t"
+                                        + str(sv.compute_solution_value(solution)) + "\t"
                                         + str(runInfo["Time_Limit_Hit"]) + "\t"
                                         + str(runInfo["Gap"]) + "\t"
                                         + str(sv.count_operated_patients(solution)) + "\t"
@@ -90,5 +90,5 @@ if __name__ == '__main__':
 
                         id += 1
 
-                        
+                    
 

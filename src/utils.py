@@ -192,8 +192,8 @@ class SolutionVisualizer:
                           y="Room",
                           color="Precedence",
                           # text="Anesthetist",
-                          labels={"Start": "Surgery start", "Finish": "Surgery end", "Room": "Operating room",
-                                  "Covid": "Covid patient", "Precedence": "Surgery Type and Delay"},
+                          labels={"Start": "Procedure start", "Finish": "Procedure end", "Room": "Operating room",
+                                  "Covid": "Covid patient", "Precedence": "Procedure Type and Delay"},
                           hover_data=["Precedence", "Covid"],
                           color_discrete_map=color_discrete_map
                           )
@@ -215,5 +215,12 @@ class SolutionVisualizer:
         fig.add_vline(x='1970-01-05 12:30:00', line_width=1, line_dash="solid", line_color="black")
 
         fig.update_layout(xaxis=dict(title='Timetable', tickformat='%H:%M:%S',), legend={"traceorder": "normal"})
+        fig.update_layout(legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="right",
+        x=1
+        ))
         fig.update_yaxes(categoryorder='category descending')
         fig.show()
